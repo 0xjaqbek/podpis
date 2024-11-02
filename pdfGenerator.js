@@ -18,14 +18,7 @@ const PDF_CONFIG = {
     }
 };
 
-// Logo as Base64 (simple example - replace with your actual logo)
-const LOGO_BASE64 = `data:image/svg+xml;base64,${btoa(`
-<svg width="100" height="100" viewBox="0 0 100 100" xmlns="http://www.w3.org/2000/svg">
-    <rect width="100" height="100" fill="white"/>
-    <path d="M20 50 Q50 20 80 50 Q50 80 20 50" fill="#2563eb"/>
-    <circle cx="50" cy="50" r="10" fill="white"/>
-</svg>
-`)}`;
+const LOGO_PATH = './hb-removebg-preview.png';
 
 // Consent text constants
 const CONSENT_TEXT = `Ja, niżej podpisany(a), wyrażam zgodę na udzielanie świadczeń zdrowotnych. Potwierdzam, że zostałem(am) poinformowany(a) o moim stanie zdrowia, proponowanych metodach diagnostycznych i leczniczych oraz o możliwych powikłaniach i ryzyku. Oświadczam również, że podane przeze mnie informacje są zgodne z prawdą.`;
