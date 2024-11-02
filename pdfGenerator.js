@@ -60,14 +60,14 @@ function generatePDF(formData) {
     doc.setFont("helvetica");
     
     // Add logo
-    doc.addImage(
-        LOGO_BASE64,
-        'PNG',
-        PDF_CONFIG.pageMargins,
-        PDF_CONFIG.pageMargins,
-        PDF_CONFIG.logoSize.width,
-        PDF_CONFIG.logoSize.height
-    );
+        doc.addImage(
+            LOGO_PATH,
+            'PNG',
+            PDF_CONFIG.pageMargins,
+            PDF_CONFIG.pageMargins,
+            PDF_CONFIG.logoSize.width,
+            PDF_CONFIG.logoSize.height
+        );
     
     // Add title
     doc.setFontSize(PDF_CONFIG.fontSize.title);
