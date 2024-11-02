@@ -1,9 +1,9 @@
 <!DOCTYPE html>
-<html lang="en">
+<html lang="pl">
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Medical History & Consent Form</title>
+    <title>Historia Medyczna i Formularz Zgody</title>
     <script src="https://cdnjs.cloudflare.com/ajax/libs/signature_pad/4.1.5/signature_pad.umd.min.js"></script>
     <script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.5.1/jspdf.umd.min.js"></script>
     <style>
@@ -76,51 +76,69 @@
     </style>
 </head>
 <body>
-    <h1>Medical History & Consent Form</h1>
+    <h1>Historia Medyczna i Formularz Zgody</h1>
     
     <form id="medicalForm" onsubmit="return handleSubmit(event)">
         <div class="form-group">
-            <label for="name">Full Name:</label>
+            <label for="name">Imię i Nazwisko:</label>
             <input type="text" id="name" required>
         </div>
 
         <div class="form-group">
-            <label for="dob">Date of Birth:</label>
+            <label for="pesel">PESEL:</label>
+            <input type="text" id="pesel" maxlength="11" required>
+        </div>
+
+        <div class="form-group">
+            <label for="dob">Data urodzenia:</label>
             <input type="date" id="dob" required>
         </div>
 
         <div class="form-group">
-            <label>Do you have any medical conditions?</label>
+            <label for="address">Adres zamieszkania:</label>
+            <input type="text" id="address" required>
+        </div>
+
+        <div class="form-group">
+            <label>Czy występują choroby przewlekłe?</label>
             <div>
-                <input type="radio" id="conditions-yes" name="conditions" value="yes">
-                <label for="conditions-yes">Yes</label>
-                <input type="radio" id="conditions-no" name="conditions" value="no">
-                <label for="conditions-no">No</label>
+                <input type="radio" id="conditions-yes" name="conditions" value="tak">
+                <label for="conditions-yes">Tak</label>
+                <input type="radio" id="conditions-no" name="conditions" value="nie">
+                <label for="conditions-no">Nie</label>
             </div>
         </div>
 
         <div class="form-group">
-            <label for="medications">Current Medications:</label>
+            <label for="conditions-description">Jeśli tak, proszę wymienić:</label>
+            <textarea id="conditions-description" rows="3"></textarea>
+        </div>
+
+        <div class="form-group">
+            <label for="medications">Przyjmowane leki:</label>
             <textarea id="medications" rows="3"></textarea>
         </div>
 
         <div class="form-group">
-            <label for="allergies">Allergies:</label>
+            <label for="allergies">Alergie:</label>
             <textarea id="allergies" rows="3"></textarea>
         </div>
 
         <div class="form-group">
-            <h3>Consent</h3>
-            <p>I hereby confirm that the information provided above is accurate and complete to the best of my knowledge. I consent to medical treatment and understand the associated risks.</p>
+            <h3>Zgoda na świadczenia medyczne</h3>
+            <p>Ja, niżej podpisany(a), wyrażam zgodę na udzielanie świadczeń zdrowotnych. Potwierdzam, że zostałem(am) poinformowany(a) o moim stanie zdrowia, proponowanych metodach diagnostycznych i leczniczych oraz o możliwych powikłaniach i ryzyku. Oświadczam również, że podane przeze mnie informacje są zgodne z prawdą.</p>
+            
+            <p>Wyrażam zgodę na przetwarzanie moich danych osobowych zgodnie z ustawą o ochronie danych osobowych w celu udzielania świadczeń zdrowotnych i prowadzenia dokumentacji medycznej.</p>
         </div>
 
         <div class="signature-container">
+            <label>Podpis pacjenta:</label>
             <canvas id="signaturePad"></canvas>
         </div>
 
         <div class="buttons">
-            <button type="button" class="clear-btn" onclick="clearSignature()">Clear Signature</button>
-            <button type="submit" class="submit-btn">Generate PDF</button>
+            <button type="button" class="clear-btn" onclick="clearSignature()">Wyczyść podpis</button>
+            <button type="submit" class="submit-btn">Generuj PDF</button>
         </div>
     </form>
 
@@ -134,7 +152,6 @@
                 backgroundColor: 'rgb(255, 255, 255)'
             });
             
-            // Adjust canvas size
             function resizeCanvas() {
                 const ratio = Math.max(window.devicePixelRatio || 1, 1);
                 canvas.width = canvas.offsetWidth * ratio;
@@ -155,7 +172,7 @@
             event.preventDefault();
             
             if (signaturePad.isEmpty()) {
-                alert('Please provide your signature');
+                alert('Proszę złożyć podpis');
                 return false;
             }
             
@@ -163,57 +180,77 @@
             const doc = new jsPDF();
             
             // Add title
+            doc.setFont("helvetica");
             doc.setFontSize(20);
-            doc.text('Medical History & Consent Form', 20, 20);
+            doc.text('Historia Medyczna i Formularz Zgody', 20, 20);
             
             // Add form data
             doc.setFontSize(12);
             let yPosition = 40;
             
             // Add patient information
-            doc.text(`Full Name: ${document.getElementById('name').value}`, 20, yPosition);
+            doc.text(`Imię i Nazwisko: ${document.getElementById('name').value}`, 20, yPosition);
             yPosition += 10;
             
-            doc.text(`Date of Birth: ${document.getElementById('dob').value}`, 20, yPosition);
+            doc.text(`PESEL: ${document.getElementById('pesel').value}`, 20, yPosition);
             yPosition += 10;
             
-            const hasConditions = document.querySelector('input[name="conditions"]:checked')?.value || 'Not specified';
-            doc.text(`Medical Conditions: ${hasConditions}`, 20, yPosition);
+            doc.text(`Data urodzenia: ${document.getElementById('dob').value}`, 20, yPosition);
+            yPosition += 10;
+
+            doc.text(`Adres: ${document.getElementById('address').value}`, 20, yPosition);
+            yPosition += 15;
+            
+            const hasConditions = document.querySelector('input[name="conditions"]:checked')?.value || 'nie określono';
+            doc.text(`Choroby przewlekłe: ${hasConditions}`, 20, yPosition);
             yPosition += 10;
             
-            // Add medications (with word wrap)
+            const conditions = document.getElementById('conditions-description').value;
+            if (conditions) {
+                const conditionsLines = doc.splitTextToSize(conditions, 170);
+                doc.text(conditionsLines, 20, yPosition);
+                yPosition += (conditionsLines.length * 7);
+            }
+            yPosition += 5;
+            
+            // Add medications
             const medications = document.getElementById('medications').value;
-            doc.text('Current Medications:', 20, yPosition);
-            yPosition += 10;
-            const medicationLines = doc.splitTextToSize(medications || 'None', 170);
+            doc.text('Przyjmowane leki:', 20, yPosition);
+            yPosition += 7;
+            const medicationLines = doc.splitTextToSize(medications || 'Brak', 170);
             doc.text(medicationLines, 20, yPosition);
-            yPosition += (medicationLines.length * 7);
+            yPosition += (medicationLines.length * 7) + 5;
             
-            // Add allergies (with word wrap)
+            // Add allergies
             const allergies = document.getElementById('allergies').value;
-            doc.text('Allergies:', 20, yPosition);
-            yPosition += 10;
-            const allergyLines = doc.splitTextToSize(allergies || 'None', 170);
+            doc.text('Alergie:', 20, yPosition);
+            yPosition += 7;
+            const allergyLines = doc.splitTextToSize(allergies || 'Brak', 170);
             doc.text(allergyLines, 20, yPosition);
-            yPosition += (allergyLines.length * 7) + 10;
+            yPosition += (allergyLines.length * 7) + 15;
             
             // Add consent text
-            const consentText = "I hereby confirm that the information provided above is accurate and complete to the best of my knowledge. I consent to medical treatment and understand the associated risks.";
+            const consentText = "Ja, niżej podpisany(a), wyrażam zgodę na udzielanie świadczeń zdrowotnych. Potwierdzam, że zostałem(am) poinformowany(a) o moim stanie zdrowia, proponowanych metodach diagnostycznych i leczniczych oraz o możliwych powikłaniach i ryzyku. Oświadczam również, że podane przeze mnie informacje są zgodne z prawdą.";
             const consentLines = doc.splitTextToSize(consentText, 170);
             doc.text(consentLines, 20, yPosition);
             yPosition += (consentLines.length * 7) + 10;
+
+            const privacyText = "Wyrażam zgodę na przetwarzanie moich danych osobowych zgodnie z ustawą o ochronie danych osobowych w celu udzielania świadczeń zdrowotnych i prowadzenia dokumentacji medycznej.";
+            const privacyLines = doc.splitTextToSize(privacyText, 170);
+            doc.text(privacyLines, 20, yPosition);
+            yPosition += (privacyLines.length * 7) + 15;
             
             // Add signature
-            doc.text('Signature:', 20, yPosition);
+            doc.text('Podpis pacjenta:', 20, yPosition);
             const signatureData = signaturePad.toDataURL();
             doc.addImage(signatureData, 'PNG', 20, yPosition + 5, 50, 20);
             
             // Add date
-            const currentDate = new Date().toLocaleDateString();
-            doc.text(`Date: ${currentDate}`, 20, yPosition + 30);
+            const currentDate = new Date().toLocaleDateString('pl-PL');
+            doc.text(`Data: ${currentDate}`, 20, yPosition + 30);
             
             // Download the PDF
-            const fileName = `medical_consent_${document.getElementById('name').value.replace(/\s+/g, '_')}.pdf`;
+            const fileName = `zgoda_medyczna_${document.getElementById('name').value.replace(/\s+/g, '_')}.pdf`;
             doc.save(fileName);
             
             return false;
