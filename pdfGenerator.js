@@ -1,3 +1,6 @@
+// Get jsPDF from the UMD module
+const { jsPDF } = window.jspdf;
+
 // PDF generation configuration and utilities
 const PDF_CONFIG = {
     pageMargins: 20,
