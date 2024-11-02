@@ -1,0 +1,160 @@
+:root {
+    --primary-color: #2563eb;
+    --error-color: #dc2626;
+    --success-color: #16a34a;
+    --border-radius: 8px;
+    --shadow: 0 1px 3px 0 rgb(0 0 0 / 0.1);
+}
+
+body {
+    font-family: system-ui, -apple-system, sans-serif;
+    max-width: 800px;
+    margin: 0 auto;
+    padding: 20px;
+    background-color: #f8fafc;
+    color: #1e293b;
+}
+
+.form-container {
+    background: white;
+    padding: 2rem;
+    border-radius: var(--border-radius);
+    box-shadow: var(--shadow);
+}
+
+h1 {
+    color: #1e293b;
+    font-size: 1.875rem;
+    font-weight: 700;
+    margin-bottom: 2rem;
+}
+
+.form-group {
+    margin-bottom: 1.5rem;
+}
+
+label {
+    display: block;
+    margin-bottom: 0.5rem;
+    font-weight: 500;
+    color: #334155;
+}
+
+input[type="text"],
+input[type="date"],
+textarea {
+    width: 100%;
+    padding: 0.75rem;
+    border: 1px solid #e2e8f0;
+    border-radius: var(--border-radius);
+    box-sizing: border-box;
+    font-size: 1rem;
+    transition: border-color 0.15s ease-in-out;
+    background-color: #fff;
+}
+
+input[type="text"]:focus,
+input[type="date"]:focus,
+textarea:focus {
+    outline: none;
+    border-color: var(--primary-color);
+    box-shadow: 0 0 0 3px rgba(37, 99, 235, 0.1);
+}
+
+.radio-group {
+    display: flex;
+    gap: 1rem;
+    align-items: center;
+}
+
+.radio-group label {
+    display: flex;
+    align-items: center;
+    gap: 0.5rem;
+    font-weight: normal;
+    cursor: pointer;
+}
+
+.signature-container {
+    border: 2px dashed #e2e8f0;
+    border-radius: var(--border-radius);
+    margin-top: 1.5rem;
+    padding: 1rem;
+    background-color: #f8fafc;
+}
+
+canvas {
+    width: 100%;
+    height: 200px;
+    border-radius: var(--border-radius);
+    background-color: white;
+}
+
+.buttons {
+    margin-top: 1.5rem;
+    display: flex;
+    gap: 1rem;
+}
+
+button {
+    padding: 0.75rem 1.5rem;
+    border: none;
+    border-radius: var(--border-radius);
+    cursor: pointer;
+    font-weight: 500;
+    font-size: 1rem;
+    transition: all 0.15s ease-in-out;
+}
+
+.submit-btn {
+    background-color: var(--primary-color);
+    color: white;
+    flex: 1;
+}
+
+.submit-btn:hover {
+    background-color: #1d4ed8;
+}
+
+.clear-btn {
+    background-color: #ef4444;
+    color: white;
+}
+
+.clear-btn:hover {
+    background-color: #dc2626;
+}
+
+.consent-text {
+    background-color: #f8fafc;
+    padding: 1rem;
+    border-radius: var(--border-radius);
+    border: 1px solid #e2e8f0;
+    margin: 1rem 0;
+}
+
+.rodo-section {
+    background-color: #eff6ff;
+    padding: 1.5rem;
+    border-radius: var(--border-radius);
+    margin: 1.5rem 0;
+}
+
+.rodo-section h3 {
+    color: var(--primary-color);
+    margin-top: 0;
+}
+
+@media (max-width: 768px) {
+    body {
+        padding: 1rem;
+    }
+
+    .form-container {
+        padding: 1rem;
+    }
+
+    .buttons {
+        flex-direction: column;
+    }
+}
