@@ -80,16 +80,30 @@
                 </ol>
             </div>
 
-            <div class="signature-container">
-                <label>Podpis pacjenta:</label>
-                <canvas id="signaturePad"></canvas>
+        <div class="signature-section">
+            <button type="button" id="openSignature" class="signature-btn">Podpis</button>
+            <div id="signatureModal" class="signature-modal">
+                <div class="signature-content">
+                    <h3>Złóż podpis</h3>
+                    <canvas id="signaturePad"></canvas>
+                    <div class="signature-buttons">
+                        <button type="button" class="clear-btn" id="clearSignature">Wyczyść</button>
+                        <button type="button" class="submit-btn" id="confirmSignature">Potwierdź</button>
+                        <button type="button" class="cancel-btn" id="cancelSignature">Anuluj</button>
+                    </div>
+                </div>
             </div>
+        </div>
 
-            <div class="buttons">
-                <button type="button" class="clear-btn" id="clearButton">Wyczyść podpis</button>
-                <button type="submit" class="submit-btn">Generuj PDF</button>
-            </div>
-        </form>
+        <div class="buttons">
+            <button type="submit" class="submit-btn">Generuj PDF</button>
+        </div>
+        
+        <!-- Hidden preview of signature -->
+        <div id="signaturePreview" class="signature-preview hidden">
+            <p>Podpis został złożony ✓</p>
+            <button type="button" id="changeSignature" class="change-signature-btn">Zmień podpis</button>
+        </div>
     </div>
 
     <script src="https://cdnjs.cloudflare.com/ajax/libs/signature_pad/4.1.5/signature_pad.umd.min.js"></script>
