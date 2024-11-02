@@ -7,140 +7,251 @@
     <script src="https://cdnjs.cloudflare.com/ajax/libs/signature_pad/4.1.5/signature_pad.umd.min.js"></script>
     <script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.5.1/jspdf.umd.min.js"></script>
     <style>
+        :root {
+            --primary-color: #2563eb;
+            --error-color: #dc2626;
+            --success-color: #16a34a;
+            --border-radius: 8px;
+            --shadow: 0 1px 3px 0 rgb(0 0 0 / 0.1);
+        }
+
         body {
-            font-family: Arial, sans-serif;
+            font-family: system-ui, -apple-system, sans-serif;
             max-width: 800px;
             margin: 0 auto;
             padding: 20px;
+            background-color: #f8fafc;
+            color: #1e293b;
         }
         
+        .form-container {
+            background: white;
+            padding: 2rem;
+            border-radius: var(--border-radius);
+            box-shadow: var(--shadow);
+        }
+
+        h1 {
+            color: #1e293b;
+            font-size: 1.875rem;
+            font-weight: 700;
+            margin-bottom: 2rem;
+        }
+
         .form-group {
-            margin-bottom: 20px;
+            margin-bottom: 1.5rem;
         }
         
         label {
             display: block;
-            margin-bottom: 5px;
-            font-weight: bold;
+            margin-bottom: 0.5rem;
+            font-weight: 500;
+            color: #334155;
         }
         
         input[type="text"],
         input[type="date"],
         textarea {
             width: 100%;
-            padding: 8px;
-            border: 1px solid #ddd;
-            border-radius: 4px;
+            padding: 0.75rem;
+            border: 1px solid #e2e8f0;
+            border-radius: var(--border-radius);
             box-sizing: border-box;
+            font-size: 1rem;
+            transition: border-color 0.15s ease-in-out;
+            background-color: #fff;
+        }
+
+        input[type="text"]:focus,
+        input[type="date"]:focus,
+        textarea:focus {
+            outline: none;
+            border-color: var(--primary-color);
+            box-shadow: 0 0 0 3px rgba(37, 99, 235, 0.1);
+        }
+
+        .radio-group {
+            display: flex;
+            gap: 1rem;
+            align-items: center;
+        }
+
+        .radio-group label {
+            display: flex;
+            align-items: center;
+            gap: 0.5rem;
+            font-weight: normal;
+            cursor: pointer;
         }
         
         .signature-container {
-            border: 2px solid #ddd;
-            border-radius: 4px;
-            margin-top: 20px;
+            border: 2px dashed #e2e8f0;
+            border-radius: var(--border-radius);
+            margin-top: 1.5rem;
+            padding: 1rem;
+            background-color: #f8fafc;
         }
         
         canvas {
             width: 100%;
             height: 200px;
-            border-radius: 4px;
+            border-radius: var(--border-radius);
+            background-color: white;
         }
         
         .buttons {
-            margin-top: 10px;
+            margin-top: 1.5rem;
+            display: flex;
+            gap: 1rem;
         }
         
         button {
-            padding: 10px 20px;
-            margin-right: 10px;
+            padding: 0.75rem 1.5rem;
             border: none;
-            border-radius: 4px;
+            border-radius: var(--border-radius);
             cursor: pointer;
+            font-weight: 500;
+            font-size: 1rem;
+            transition: all 0.15s ease-in-out;
         }
         
         .submit-btn {
-            background-color: #4CAF50;
+            background-color: var(--primary-color);
             color: white;
+            flex: 1;
+        }
+
+        .submit-btn:hover {
+            background-color: #1d4ed8;
         }
         
         .clear-btn {
-            background-color: #f44336;
+            background-color: #ef4444;
             color: white;
         }
-        
+
+        .clear-btn:hover {
+            background-color: #dc2626;
+        }
+
+        .consent-text {
+            background-color: #f8fafc;
+            padding: 1rem;
+            border-radius: var(--border-radius);
+            border: 1px solid #e2e8f0;
+            margin: 1rem 0;
+        }
+
+        .rodo-section {
+            background-color: #eff6ff;
+            padding: 1.5rem;
+            border-radius: var(--border-radius);
+            margin: 1.5rem 0;
+        }
+
+        .rodo-section h3 {
+            color: var(--primary-color);
+            margin-top: 0;
+        }
+
         @media (max-width: 768px) {
             body {
-                padding: 10px;
+                padding: 1rem;
+            }
+
+            .form-container {
+                padding: 1rem;
+            }
+
+            .buttons {
+                flex-direction: column;
             }
         }
     </style>
 </head>
 <body>
-    <h1>Historia Medyczna i Formularz Zgody</h1>
-    
-    <form id="medicalForm" onsubmit="return handleSubmit(event)">
-        <div class="form-group">
-            <label for="name">Imię i Nazwisko:</label>
-            <input type="text" id="name" required>
-        </div>
-
-        <div class="form-group">
-            <label for="pesel">PESEL:</label>
-            <input type="text" id="pesel" maxlength="11" required>
-        </div>
-
-        <div class="form-group">
-            <label for="dob">Data urodzenia:</label>
-            <input type="date" id="dob" required>
-        </div>
-
-        <div class="form-group">
-            <label for="address">Adres zamieszkania:</label>
-            <input type="text" id="address" required>
-        </div>
-
-        <div class="form-group">
-            <label>Czy występują choroby przewlekłe?</label>
-            <div>
-                <input type="radio" id="conditions-yes" name="conditions" value="tak">
-                <label for="conditions-yes">Tak</label>
-                <input type="radio" id="conditions-no" name="conditions" value="nie">
-                <label for="conditions-no">Nie</label>
+    <div class="form-container">
+        <h1>Historia Medyczna i Formularz Zgody</h1>
+        
+        <form id="medicalForm" onsubmit="return handleSubmit(event)">
+            <div class="form-group">
+                <label for="name">Imię i Nazwisko:</label>
+                <input type="text" id="name" required>
             </div>
-        </div>
 
-        <div class="form-group">
-            <label for="conditions-description">Jeśli tak, proszę wymienić:</label>
-            <textarea id="conditions-description" rows="3"></textarea>
-        </div>
+            <div class="form-group">
+                <label for="pesel">PESEL:</label>
+                <input type="text" id="pesel" maxlength="11" required 
+                       pattern="[0-9]{11}" title="PESEL musi zawierać 11 cyfr">
+            </div>
 
-        <div class="form-group">
-            <label for="medications">Przyjmowane leki:</label>
-            <textarea id="medications" rows="3"></textarea>
-        </div>
+            <div class="form-group">
+                <label for="dob">Data urodzenia:</label>
+                <input type="date" id="dob" required>
+            </div>
 
-        <div class="form-group">
-            <label for="allergies">Alergie:</label>
-            <textarea id="allergies" rows="3"></textarea>
-        </div>
+            <div class="form-group">
+                <label for="address">Adres zamieszkania:</label>
+                <input type="text" id="address" required>
+            </div>
 
-        <div class="form-group">
-            <h3>Zgoda na świadczenia medyczne</h3>
-            <p>Ja, niżej podpisany(a), wyrażam zgodę na udzielanie świadczeń zdrowotnych. Potwierdzam, że zostałem(am) poinformowany(a) o moim stanie zdrowia, proponowanych metodach diagnostycznych i leczniczych oraz o możliwych powikłaniach i ryzyku. Oświadczam również, że podane przeze mnie informacje są zgodne z prawdą.</p>
-            
-            <p>Wyrażam zgodę na przetwarzanie moich danych osobowych zgodnie z ustawą o ochronie danych osobowych w celu udzielania świadczeń zdrowotnych i prowadzenia dokumentacji medycznej.</p>
-        </div>
+            <div class="form-group">
+                <label>Czy występują choroby przewlekłe?</label>
+                <div class="radio-group">
+                    <label>
+                        <input type="radio" id="conditions-yes" name="conditions" value="tak">
+                        Tak
+                    </label>
+                    <label>
+                        <input type="radio" id="conditions-no" name="conditions" value="nie">
+                        Nie
+                    </label>
+                </div>
+            </div>
 
-        <div class="signature-container">
-            <label>Podpis pacjenta:</label>
-            <canvas id="signaturePad"></canvas>
-        </div>
+            <div class="form-group">
+                <label for="conditions-description">Jeśli tak, proszę wymienić:</label>
+                <textarea id="conditions-description" rows="3"></textarea>
+            </div>
 
-        <div class="buttons">
-            <button type="button" class="clear-btn" onclick="clearSignature()">Wyczyść podpis</button>
-            <button type="submit" class="submit-btn">Generuj PDF</button>
-        </div>
-    </form>
+            <div class="form-group">
+                <label for="medications">Przyjmowane leki:</label>
+                <textarea id="medications" rows="3"></textarea>
+            </div>
+
+            <div class="form-group">
+                <label for="allergies">Alergie:</label>
+                <textarea id="allergies" rows="3"></textarea>
+            </div>
+
+            <div class="consent-text">
+                <h3>Zgoda na świadczenia medyczne</h3>
+                <p>Ja, niżej podpisany(a), wyrażam zgodę na udzielanie świadczeń zdrowotnych. Potwierdzam, że zostałem(am) poinformowany(a) o moim stanie zdrowia, proponowanych metodach diagnostycznych i leczniczych oraz o możliwych powikłaniach i ryzyku. Oświadczam również, że podane przeze mnie informacje są zgodne z prawdą.</p>
+            </div>
+
+            <div class="rodo-section">
+                <h3>Informacja o przetwarzaniu danych osobowych (RODO)</h3>
+                <p>Zgodnie z art. 13 ust. 1 i 2 Rozporządzenia Parlamentu Europejskiego i Rady (UE) 2016/679 z dnia 27 kwietnia 2016 r. informujemy, że:</p>
+                <ol>
+                    <li>Administratorem Pani/Pana danych osobowych jest [Nazwa Placówki] z siedzibą przy [Adres].</li>
+                    <li>Pani/Pana dane osobowe przetwarzane będą w celu świadczenia usług medycznych oraz prowadzenia dokumentacji medycznej.</li>
+                    <li>Posiada Pani/Pan prawo dostępu do treści swoich danych oraz prawo ich sprostowania, usunięcia, ograniczenia przetwarzania, prawo do przenoszenia danych, prawo wniesienia sprzeciwu.</li>
+                    <li>Pani/Pana dane będą przechowywane przez okres wynikający z przepisów prawa, w szczególności z ustawy o prawach pacjenta i Rzeczniku Praw Pacjenta.</li>
+                    <li>Ma Pani/Pan prawo wniesienia skargi do UODO gdy uzna Pani/Pan, że przetwarzanie danych osobowych narusza przepisy RODO.</li>
+                </ol>
+            </div>
+
+            <div class="signature-container">
+                <label>Podpis pacjenta:</label>
+                <canvas id="signaturePad"></canvas>
+            </div>
+
+            <div class="buttons">
+                <button type="button" class="clear-btn" onclick="clearSignature()">Wyczyść podpis</button>
+                <button type="submit" class="submit-btn">Generuj PDF</button>
+            </div>
+        </form>
+    </div>
 
     <script>
         let signaturePad;
@@ -176,11 +287,14 @@
                 return false;
             }
             
-            // Create PDF
+            // Create PDF with custom font for Polish characters
             const doc = new jsPDF();
             
-            // Add title
+            // PDF settings for Polish characters
+            doc.setLanguage("pl");
             doc.setFont("helvetica");
+            
+            // Add title
             doc.setFontSize(20);
             doc.text('Historia Medyczna i Formularz Zgody', 20, 20);
             
@@ -188,66 +302,64 @@
             doc.setFontSize(12);
             let yPosition = 40;
             
+            // Helper function to add text with proper encoding
+            function addText(text, x, y) {
+                doc.text(text, x, y);
+            }
+            
             // Add patient information
-            doc.text(`Imię i Nazwisko: ${document.getElementById('name').value}`, 20, yPosition);
+            addText(`Imię i Nazwisko: ${document.getElementById('name').value}`, 20, yPosition);
             yPosition += 10;
             
-            doc.text(`PESEL: ${document.getElementById('pesel').value}`, 20, yPosition);
+            addText(`PESEL: ${document.getElementById('pesel').value}`, 20, yPosition);
             yPosition += 10;
             
-            doc.text(`Data urodzenia: ${document.getElementById('dob').value}`, 20, yPosition);
+            addText(`Data urodzenia: ${document.getElementById('dob').value}`, 20, yPosition);
             yPosition += 10;
 
-            doc.text(`Adres: ${document.getElementById('address').value}`, 20, yPosition);
+            addText(`Adres: ${document.getElementById('address').value}`, 20, yPosition);
             yPosition += 15;
             
             const hasConditions = document.querySelector('input[name="conditions"]:checked')?.value || 'nie określono';
-            doc.text(`Choroby przewlekłe: ${hasConditions}`, 20, yPosition);
+            addText(`Choroby przewlekłe: ${hasConditions}`, 20, yPosition);
             yPosition += 10;
             
             const conditions = document.getElementById('conditions-description').value;
             if (conditions) {
                 const conditionsLines = doc.splitTextToSize(conditions, 170);
-                doc.text(conditionsLines, 20, yPosition);
+                addText(conditionsLines, 20, yPosition);
                 yPosition += (conditionsLines.length * 7);
             }
             yPosition += 5;
             
-            // Add medications
             const medications = document.getElementById('medications').value;
-            doc.text('Przyjmowane leki:', 20, yPosition);
+            addText('Przyjmowane leki:', 20, yPosition);
             yPosition += 7;
             const medicationLines = doc.splitTextToSize(medications || 'Brak', 170);
-            doc.text(medicationLines, 20, yPosition);
+            addText(medicationLines, 20, yPosition);
             yPosition += (medicationLines.length * 7) + 5;
             
-            // Add allergies
             const allergies = document.getElementById('allergies').value;
-            doc.text('Alergie:', 20, yPosition);
+            addText('Alergie:', 20, yPosition);
             yPosition += 7;
             const allergyLines = doc.splitTextToSize(allergies || 'Brak', 170);
-            doc.text(allergyLines, 20, yPosition);
+            addText(allergyLines, 20, yPosition);
             yPosition += (allergyLines.length * 7) + 15;
             
-            // Add consent text
+            // Add consent and RODO text
             const consentText = "Ja, niżej podpisany(a), wyrażam zgodę na udzielanie świadczeń zdrowotnych. Potwierdzam, że zostałem(am) poinformowany(a) o moim stanie zdrowia, proponowanych metodach diagnostycznych i leczniczych oraz o możliwych powikłaniach i ryzyku. Oświadczam również, że podane przeze mnie informacje są zgodne z prawdą.";
             const consentLines = doc.splitTextToSize(consentText, 170);
-            doc.text(consentLines, 20, yPosition);
+            addText(consentLines, 20, yPosition);
             yPosition += (consentLines.length * 7) + 10;
 
-            const privacyText = "Wyrażam zgodę na przetwarzanie moich danych osobowych zgodnie z ustawą o ochronie danych osobowych w celu udzielania świadczeń zdrowotnych i prowadzenia dokumentacji medycznej.";
-            const privacyLines = doc.splitTextToSize(privacyText, 170);
-            doc.text(privacyLines, 20, yPosition);
-            yPosition += (privacyLines.length * 7) + 15;
-            
             // Add signature
-            doc.text('Podpis pacjenta:', 20, yPosition);
+            addText('Podpis pacjenta:', 20, yPosition);
             const signatureData = signaturePad.toDataURL();
             doc.addImage(signatureData, 'PNG', 20, yPosition + 5, 50, 20);
             
             // Add date
             const currentDate = new Date().toLocaleDateString('pl-PL');
-            doc.text(`Data: ${currentDate}`, 20, yPosition + 30);
+            addText(`Data: ${currentDate}`, 20, yPosition + 30);
             
             // Download the PDF
             const fileName = `zgoda_medyczna_${document.getElementById('name').value.replace(/\s+/g, '_')}.pdf`;
