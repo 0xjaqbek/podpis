@@ -1,5 +1,5 @@
-// Global variables
 let signaturePad;
+let hasSignature = false;
 
 // Initialize when DOM is fully loaded
 document.addEventListener('DOMContentLoaded', function() {
@@ -7,55 +7,83 @@ document.addEventListener('DOMContentLoaded', function() {
 });
 
 function initializeForm() {
+    const openSignatureBtn = document.getElementById('openSignature');
+    const signatureModal = document.getElementById('signatureModal');
+    const confirmSignatureBtn = document.getElementById('confirmSignature');
+    const clearSignatureBtn = document.getElementById('clearSignature');
+    const cancelSignatureBtn = document.getElementById('cancelSignature');
+    const changeSignatureBtn = document.getElementById('changeSignature');
+    const signaturePreview = document.getElementById('signaturePreview');
+    
     // Initialize signature pad
     const canvas = document.getElementById('signaturePad');
-    if (canvas) {
-        initializeSignaturePad(canvas);
-    }
-
+    initializeSignaturePad(canvas);
+    
     // Set up form submission
     const form = document.getElementById('medicalForm');
     if (form) {
         form.addEventListener('submit', handleSubmit);
     }
-
+    
     // Set up PESEL validation
     const peselInput = document.getElementById('pesel');
     if (peselInput) {
         peselInput.addEventListener('input', validatePesel);
     }
+    
+    // Signature modal controls
+    openSignatureBtn.addEventListener('click', function() {
+        signatureModal.classList.add('active');
+        resizeCanvas();
+    });
+    
+    confirmSignatureBtn.addEventListener('click', function() {
+        if (signaturePad.isEmpty()) {
+            alert('Proszę złożyć podpis przed potwierdzeniem');
+            return;
+        }
+        
+        hasSignature = true;
+        signatureModal.classList.remove('active');
+        signaturePreview.classList.remove('hidden');
+        openSignatureBtn.classList.add('hidden');
+    });
+    
+    clearSignatureBtn.addEventListener('click', function() {
+        signaturePad.clear();
+    });
+    
+    cancelSignatureBtn.addEventListener('click', function() {
+        signatureModal.classList.remove('active');
+    });
+    
+    changeSignatureBtn.addEventListener('click', function() {
+        signatureModal.classList.add('active');
+        resizeCanvas();
+    });
 
-    // Set up clear button
-    const clearButton = document.getElementById('clearButton');
-    if (clearButton) {
-        clearButton.addEventListener('click', clearSignature);
-    }
+    // Handle window resize
+    window.addEventListener('resize', resizeCanvas);
 }
 
 // Initialize and configure the signature pad
 function initializeSignaturePad(canvas) {
     signaturePad = new SignaturePad(canvas, {
-        backgroundColor: 'rgb(255, 255, 255)'
+        backgroundColor: 'rgb(255, 255, 255)',
+        penColor: 'rgb(0, 0, 0)'
     });
-    
-    // Handle canvas resize
-    function resizeCanvas() {
-        const ratio = Math.max(window.devicePixelRatio || 1, 1);
-        canvas.width = canvas.offsetWidth * ratio;
-        canvas.height = canvas.offsetHeight * ratio;
-        canvas.getContext("2d").scale(ratio, ratio);
-        signaturePad.clear();
-    }
-    
-    window.addEventListener("resize", resizeCanvas);
-    resizeCanvas();
 }
 
-// Clear signature pad
-function clearSignature() {
-    if (signaturePad) {
-        signaturePad.clear();
-    }
+// Resize canvas
+function resizeCanvas() {
+    const canvas = document.getElementById('signaturePad');
+    const ratio = Math.max(window.devicePixelRatio || 1, 1);
+    const rect = canvas.getBoundingClientRect();
+    
+    canvas.width = rect.width * ratio;
+    canvas.height = rect.height * ratio;
+    canvas.getContext("2d").scale(ratio, ratio);
+    signaturePad.clear();
 }
 
 // Validate PESEL
@@ -72,8 +100,8 @@ function validatePesel(e) {
 function handleSubmit(event) {
     event.preventDefault();
     
-    if (!signaturePad || signaturePad.isEmpty()) {
-        alert('Proszę złożyć podpis');
+    if (!hasSignature) {
+        alert('Proszę złożyć podpis przed wygenerowaniem dokumentu');
         return false;
     }
     
