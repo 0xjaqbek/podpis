@@ -235,7 +235,7 @@ function generatePDF(formData) {
     yPosition += 10;
 
     // Calculate column widths and positions
-    const columnWidth = (PDF_CONFIG.maxWidth - PDF_CONFIG.pageMargins.right - 5) / 2; // -5 for gap between columns
+    const columnWidth = (PDF_CONFIG.maxWidth - PDF_CONFIG.pageMargins.right - 2) / 2; // -5 for gap between columns
     const rightColumnX = PDF_CONFIG.pageMargins.left + columnWidth + 5; // Start of right column
     
     // Store initial Y position for both columns
