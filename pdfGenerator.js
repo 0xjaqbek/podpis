@@ -3,7 +3,12 @@ const { jsPDF } = window.jspdf;
 
 // PDF generation configuration and utilities
 const PDF_CONFIG = {
-    pageMargins: 20,
+    pageMargins: {
+        left: 20,
+        right: 20,
+        top: 20,
+        bottom: 20
+    },
     lineHeight: 6,
     fontSize: {
         title: 16,
@@ -11,7 +16,7 @@ const PDF_CONFIG = {
         normal: 10,
         small: 9
     },
-    maxWidth: 170,
+    maxWidth: 170,  // Adjusted to account for right margin
     logoSize: {
         width: 30,
         height: 30
@@ -20,24 +25,39 @@ const PDF_CONFIG = {
 
 const LOGO_PATH = './hb-removebg-preview.png';
 
-// Consent text constants
+// Consent text constants with proper Polish characters
 const CONSENT_TEXT = `Ja, niżej podpisany(a), wyrażam zgodę na udzielanie świadczeń zdrowotnych. Potwierdzam, że zostałem(am) poinformowany(a) o moim stanie zdrowia, proponowanych metodach diagnostycznych i leczniczych oraz o możliwych powikłaniach i ryzyku. Oświadczam również, że podane przeze mnie informacje są zgodne z prawdą.`;
 
 const RODO_TEXT = `Zgodnie z art. 13 ust. 1 i 2 Rozporządzenia Parlamentu Europejskiego i Rady (UE) 2016/679 z dnia 27 kwietnia 2016 r. w sprawie ochrony osób fizycznych w związku z przetwarzaniem danych osobowych (RODO), wyrażam zgodę na przetwarzanie moich danych osobowych w celu realizacji usług medycznych i prowadzenia dokumentacji medycznej.`;
 
-// Helper function to add text with proper line breaks
+// Helper function to encode Polish characters
+function encodePolishChars(text) {
+    const polishChars = {
+        'ą': '\u0105', 'ć': '\u0107', 'ę': '\u0119',
+        'ł': '\u0142', 'ń': '\u0144', 'ó': '\u00F3',
+        'ś': '\u015B', 'ź': '\u017A', 'ż': '\u017C',
+        'Ą': '\u0104', 'Ć': '\u0106', 'Ę': '\u0118',
+        'Ł': '\u0141', 'Ń': '\u0143', 'Ó': '\u00D3',
+        'Ś': '\u015A', 'Ź': '\u0179', 'Ż': '\u017B'
+    };
+    
+    return text.replace(/[ąćęłńóśźżĄĆĘŁŃÓŚŹŻ]/g, char => polishChars[char] || char);
+}
+
+// Helper function to add text with proper line breaks and Polish characters
 function addTextWithLineBreak(doc, text, x, y, maxWidth, fontSize = PDF_CONFIG.fontSize.normal) {
     doc.setFontSize(fontSize);
-    const lines = doc.splitTextToSize(text, maxWidth);
+    const encodedText = encodePolishChars(text);
+    const lines = doc.splitTextToSize(encodedText, maxWidth - PDF_CONFIG.pageMargins.right);
     doc.text(lines, x, y);
     return y + (lines.length * PDF_CONFIG.lineHeight);
 }
 
 // Helper function to check if we need a new page
 function checkAndAddNewPage(doc, yPosition, requiredSpace) {
-    if (yPosition + requiredSpace > 280) {
+    if (yPosition + requiredSpace > (doc.internal.pageSize.getHeight() - PDF_CONFIG.pageMargins.bottom)) {
         doc.addPage();
-        return PDF_CONFIG.pageMargins;
+        return PDF_CONFIG.pageMargins.top;
     }
     return yPosition;
 }
@@ -57,29 +77,30 @@ function generatePDF(formData) {
     
     // Configure PDF for Polish characters
     doc.setLanguage("pl");
-    doc.setFont("helvetica");
+    doc.setFont("helvetica", "normal");
     
     // Add logo
-        doc.addImage(
-            LOGO_PATH,
-            'PNG',
-            PDF_CONFIG.pageMargins,
-            PDF_CONFIG.pageMargins,
-            PDF_CONFIG.logoSize.width,
-            PDF_CONFIG.logoSize.height
-        );
+    doc.addImage(
+        LOGO_PATH,
+        'PNG',
+        PDF_CONFIG.pageMargins.left,
+        PDF_CONFIG.pageMargins.top,
+        PDF_CONFIG.logoSize.width,
+        PDF_CONFIG.logoSize.height
+    );
     
     // Add title
     doc.setFontSize(PDF_CONFIG.fontSize.title);
+    const titleText = encodePolishChars('Historia Medyczna i Formularz Zgody');
     doc.text(
-        'Historia Medyczna i Formularz Zgody',
-        PDF_CONFIG.pageMargins + PDF_CONFIG.logoSize.width + 10,
-        PDF_CONFIG.pageMargins + (PDF_CONFIG.logoSize.height / 2)
+        titleText,
+        PDF_CONFIG.pageMargins.left + PDF_CONFIG.logoSize.width + 10,
+        PDF_CONFIG.pageMargins.top + (PDF_CONFIG.logoSize.height / 2)
     );
     
     // Set normal font size for content
     doc.setFontSize(PDF_CONFIG.fontSize.normal);
-    let yPosition = PDF_CONFIG.pageMargins + PDF_CONFIG.logoSize.height + 10;
+    let yPosition = PDF_CONFIG.pageMargins.top + PDF_CONFIG.logoSize.height + 10;
     
     // Add patient information
     const patientInfo = [
@@ -90,7 +111,13 @@ function generatePDF(formData) {
     ];
     
     patientInfo.forEach(info => {
-        yPosition = addTextWithLineBreak(doc, info, PDF_CONFIG.pageMargins, yPosition, PDF_CONFIG.maxWidth);
+        yPosition = addTextWithLineBreak(
+            doc, 
+            info, 
+            PDF_CONFIG.pageMargins.left, 
+            yPosition, 
+            PDF_CONFIG.maxWidth - PDF_CONFIG.pageMargins.right
+        );
         yPosition += 2;
     });
     
@@ -101,9 +128,9 @@ function generatePDF(formData) {
     yPosition = addTextWithLineBreak(
         doc,
         `Choroby przewlekłe: ${formData.conditions}`,
-        PDF_CONFIG.pageMargins,
+        PDF_CONFIG.pageMargins.left,
         yPosition,
-        PDF_CONFIG.maxWidth
+        PDF_CONFIG.maxWidth - PDF_CONFIG.pageMargins.right
     );
     
     if (formData.conditionsDescription) {
@@ -112,9 +139,9 @@ function generatePDF(formData) {
         yPosition = addTextWithLineBreak(
             doc,
             formData.conditionsDescription,
-            PDF_CONFIG.pageMargins + 5,
+            PDF_CONFIG.pageMargins.left + 5,
             yPosition,
-            PDF_CONFIG.maxWidth - 5
+            PDF_CONFIG.maxWidth - PDF_CONFIG.pageMargins.right - 5
         );
     }
     
@@ -125,17 +152,17 @@ function generatePDF(formData) {
     yPosition = addTextWithLineBreak(
         doc,
         'Przyjmowane leki:',
-        PDF_CONFIG.pageMargins,
+        PDF_CONFIG.pageMargins.left,
         yPosition,
-        PDF_CONFIG.maxWidth
+        PDF_CONFIG.maxWidth - PDF_CONFIG.pageMargins.right
     );
     yPosition += 3;
     yPosition = addTextWithLineBreak(
         doc,
         formData.medications || 'Brak',
-        PDF_CONFIG.pageMargins + 5,
+        PDF_CONFIG.pageMargins.left + 5,
         yPosition,
-        PDF_CONFIG.maxWidth - 5
+        PDF_CONFIG.maxWidth - PDF_CONFIG.pageMargins.right - 5
     );
     
     yPosition += 5;
@@ -145,17 +172,17 @@ function generatePDF(formData) {
     yPosition = addTextWithLineBreak(
         doc,
         'Alergie:',
-        PDF_CONFIG.pageMargins,
+        PDF_CONFIG.pageMargins.left,
         yPosition,
-        PDF_CONFIG.maxWidth
+        PDF_CONFIG.maxWidth - PDF_CONFIG.pageMargins.right
     );
     yPosition += 3;
     yPosition = addTextWithLineBreak(
         doc,
         formData.allergies || 'Brak',
-        PDF_CONFIG.pageMargins + 5,
+        PDF_CONFIG.pageMargins.left + 5,
         yPosition,
-        PDF_CONFIG.maxWidth - 5
+        PDF_CONFIG.maxWidth - PDF_CONFIG.pageMargins.right - 5
     );
     
     yPosition += 10;
@@ -163,14 +190,18 @@ function generatePDF(formData) {
     // Add consent section with smaller text
     yPosition = checkAndAddNewPage(doc, yPosition, 40);
     doc.setFontSize(PDF_CONFIG.fontSize.subtitle);
-    doc.text('Zgoda na świadczenia medyczne', PDF_CONFIG.pageMargins, yPosition);
+    doc.text(
+        encodePolishChars('Zgoda na świadczenia medyczne'),
+        PDF_CONFIG.pageMargins.left,
+        yPosition
+    );
     yPosition += 7;
     yPosition = addTextWithLineBreak(
         doc,
         CONSENT_TEXT,
-        PDF_CONFIG.pageMargins,
+        PDF_CONFIG.pageMargins.left,
         yPosition,
-        PDF_CONFIG.maxWidth,
+        PDF_CONFIG.maxWidth - PDF_CONFIG.pageMargins.right,
         PDF_CONFIG.fontSize.small
     );
     
@@ -179,14 +210,18 @@ function generatePDF(formData) {
     // Add RODO section with smaller text
     yPosition = checkAndAddNewPage(doc, yPosition, 40);
     doc.setFontSize(PDF_CONFIG.fontSize.subtitle);
-    doc.text('Informacja RODO', PDF_CONFIG.pageMargins, yPosition);
+    doc.text(
+        encodePolishChars('Informacja RODO'),
+        PDF_CONFIG.pageMargins.left,
+        yPosition
+    );
     yPosition += 7;
     yPosition = addTextWithLineBreak(
         doc,
         RODO_TEXT,
-        PDF_CONFIG.pageMargins,
+        PDF_CONFIG.pageMargins.left,
         yPosition,
-        PDF_CONFIG.maxWidth,
+        PDF_CONFIG.maxWidth - PDF_CONFIG.pageMargins.right,
         PDF_CONFIG.fontSize.small
     );
     
@@ -195,14 +230,18 @@ function generatePDF(formData) {
     // Add signature section
     yPosition = checkAndAddNewPage(doc, yPosition, 40);
     doc.setFontSize(PDF_CONFIG.fontSize.normal);
-    doc.text('Podpis pacjenta:', PDF_CONFIG.pageMargins, yPosition);
+    doc.text(
+        encodePolishChars('Podpis pacjenta:'),
+        PDF_CONFIG.pageMargins.left,
+        yPosition
+    );
     
     // Add signature image
     if (formData.signature) {
         doc.addImage(
             formData.signature,
             'PNG',
-            PDF_CONFIG.pageMargins,
+            PDF_CONFIG.pageMargins.left,
             yPosition + 5,
             50,
             20
@@ -212,8 +251,8 @@ function generatePDF(formData) {
     // Add date
     const currentDate = new Date().toLocaleDateString('pl-PL');
     doc.text(
-        `Data: ${currentDate}`,
-        PDF_CONFIG.pageMargins,
+        encodePolishChars(`Data: ${currentDate}`),
+        PDF_CONFIG.pageMargins.left,
         yPosition + 30
     );
     
@@ -223,7 +262,7 @@ function generatePDF(formData) {
         doc.setPage(i);
         doc.setFontSize(PDF_CONFIG.fontSize.small);
         doc.text(
-            `Strona ${i} z ${pageCount}`,
+            encodePolishChars(`Strona ${i} z ${pageCount}`),
             doc.internal.pageSize.getWidth() - 40,
             doc.internal.pageSize.getHeight() - 10
         );
