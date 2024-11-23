@@ -4,17 +4,17 @@ const { jsPDF } = window.jspdf;
 // PDF generation configuration and utilities
 const PDF_CONFIG = {
     pageMargins: {
-        left: 15,
-        right: 15,
-        top: 15,
-        bottom: 15
+        left: 20,
+        right: 20,
+        top: 20,
+        bottom: 20
     },
-    lineHeight: 5,
+    lineHeight: 6,
     fontSize: {
-        title: 14,
-        subtitle: 10,
-        normal: 9,
-        small: 8
+        title: 16,
+        subtitle: 12,
+        normal: 10,
+        small: 9
     },
     maxWidth: 170,
     logoSize: {
@@ -25,24 +25,68 @@ const PDF_CONFIG = {
 
 const LOGO_PATH = './hb-removebg-preview.png';
 
-// Consent text constants with proper line width consideration
+// Consent text constants
 const CONSENT_TEXT = `Ja, niżej podpisany(a), wyrażam zgodę na udzielanie świadczeń zdrowotnych. Potwierdzam, że zostałem(am) poinformowany(a) o moim stanie zdrowia, proponowanych metodach diagnostycznych i leczniczych oraz o możliwych powikłaniach i ryzyku. Oświadczam również, że podane przeze mnie informacje są zgodne z prawdą.`;
 
 const RODO_TEXT = `Zgodnie z art. 13 ust. 1 i 2 Rozporządzenia Parlamentu Europejskiego i Rady (UE) 2016/679 z dnia 27 kwietnia 2016 r. w sprawie ochrony osób fizycznych w związku z przetwarzaniem danych osobowych (RODO), wyrażam zgodę na przetwarzanie moich danych osobowych w celu realizacji usług medycznych i prowadzenia dokumentacji medycznej.`;
 
-// Helper function to add text with proper line breaks and Polish characters
+// Helper function to properly encode Polish characters
+function encodePolishChars(text) {
+    const polishCharsMap = {
+        'ą': 'a',
+        'ć': 'c',
+        'ę': 'e',
+        'ł': 'l',
+        'ń': 'n',
+        'ó': 'o',
+        'ś': 's',
+        'ź': 'z',
+        'ż': 'z',
+        'Ą': 'A',
+        'Ć': 'C',
+        'Ę': 'E',
+        'Ł': 'L',
+        'Ń': 'N',
+        'Ó': 'O',
+        'Ś': 'S',
+        'Ź': 'Z',
+        'Ż': 'Z'
+    };
+    
+    return text.replace(/[ąćęłńóśźżĄĆĘŁŃÓŚŹŻ]/g, char => polishCharsMap[char] || char);
+}
+
+// Helper function to add text with proper line breaks and margins
 function addTextWithLineBreak(doc, text, x, y, maxWidth, fontSize = PDF_CONFIG.fontSize.normal) {
     doc.setFontSize(fontSize);
     
     // Calculate effective width considering right margin
-    const effectiveWidth = maxWidth - (PDF_CONFIG.pageMargins.right + 10);
+    const effectiveWidth = maxWidth - (PDF_CONFIG.pageMargins.right * 2);
     
-    // Split text into lines considering the effective width
-    const lines = doc.splitTextToSize(text, effectiveWidth);
+    // Split text into lines with proper width
+    const words = text.split(' ');
+    let lines = [];
+    let currentLine = '';
+    
+    words.forEach(word => {
+        const testLine = currentLine ? `${currentLine} ${word}` : word;
+        const testWidth = doc.getStringUnitWidth(testLine) * fontSize;
+        
+        if (testWidth > effectiveWidth) {
+            lines.push(currentLine);
+            currentLine = word;
+        } else {
+            currentLine = testLine;
+        }
+    });
+    
+    if (currentLine) {
+        lines.push(currentLine);
+    }
     
     // Add each line with proper encoding
     lines.forEach((line, index) => {
-        const encodedLine = decodeURIComponent(encodeURIComponent(line));
+        const encodedLine = encodePolishChars(line);
         doc.text(encodedLine, x, y + (index * PDF_CONFIG.lineHeight));
     });
     
@@ -79,8 +123,6 @@ function generatePDF(formData) {
     
     // Configure PDF for Polish characters
     doc.setLanguage("pl");
-    
-    // Use a font that supports Polish characters
     doc.addFont("helvetica", "Helvetica", "normal");
     doc.setFont("Helvetica");
     
@@ -94,9 +136,9 @@ function generatePDF(formData) {
         PDF_CONFIG.logoSize.height
     );
     
-    // Add title with Polish characters
+    // Add title
     doc.setFontSize(PDF_CONFIG.fontSize.title);
-    const title = 'Historia Medyczna i Formularz Zgody';
+    const title = encodePolishChars('Historia Medyczna i Formularz Zgody');
     doc.text(
         title,
         PDF_CONFIG.pageMargins.left + PDF_CONFIG.logoSize.width + 10,
@@ -107,7 +149,7 @@ function generatePDF(formData) {
     doc.setFontSize(PDF_CONFIG.fontSize.normal);
     let yPosition = PDF_CONFIG.pageMargins.top + PDF_CONFIG.logoSize.height + 10;
     
-    // Add patient information with Polish characters
+    // Add patient information
     const patientInfo = [
         `Imię i Nazwisko: ${formData.name}`,
         `PESEL: ${formData.pesel}`,
@@ -116,7 +158,13 @@ function generatePDF(formData) {
     ];
     
     patientInfo.forEach(info => {
-        yPosition = addTextWithLineBreak(doc, info, PDF_CONFIG.pageMargins.left, yPosition, PDF_CONFIG.maxWidth);
+        yPosition = addTextWithLineBreak(
+            doc, 
+            info, 
+            PDF_CONFIG.pageMargins.left, 
+            yPosition, 
+            PDF_CONFIG.maxWidth
+        );
         yPosition += 2;
     });
     
@@ -189,14 +237,21 @@ function generatePDF(formData) {
     // Add consent section with smaller text and proper margins
     yPosition = checkAndAddNewPage(doc, yPosition, 40);
     doc.setFontSize(PDF_CONFIG.fontSize.subtitle);
-    doc.text('Zgoda na świadczenia medyczne', PDF_CONFIG.pageMargins.left, yPosition);
+    doc.text(
+        encodePolishChars('Zgoda na świadczenia medyczne'),
+        PDF_CONFIG.pageMargins.left,
+        yPosition
+    );
     yPosition += 7;
+    
+    // Use reduced width for consent text
+    const consentWidth = PDF_CONFIG.maxWidth - 40; // Increased margin reduction
     yPosition = addTextWithLineBreak(
         doc,
         CONSENT_TEXT,
-        PDF_CONFIG.pageMargins.left,
+        PDF_CONFIG.pageMargins.left + 10, // Add left indentation
         yPosition,
-        PDF_CONFIG.maxWidth - 20, // Additional right margin for consent text
+        consentWidth,
         PDF_CONFIG.fontSize.small
     );
     
@@ -205,14 +260,20 @@ function generatePDF(formData) {
     // Add RODO section with smaller text and proper margins
     yPosition = checkAndAddNewPage(doc, yPosition, 40);
     doc.setFontSize(PDF_CONFIG.fontSize.subtitle);
-    doc.text('Informacja RODO', PDF_CONFIG.pageMargins.left, yPosition);
+    doc.text(
+        encodePolishChars('Informacja RODO'),
+        PDF_CONFIG.pageMargins.left,
+        yPosition
+    );
     yPosition += 7;
+    
+    // Use same reduced width for RODO text
     yPosition = addTextWithLineBreak(
         doc,
         RODO_TEXT,
-        PDF_CONFIG.pageMargins.left,
+        PDF_CONFIG.pageMargins.left + 10, // Add left indentation
         yPosition,
-        PDF_CONFIG.maxWidth - 20, // Additional right margin for RODO text
+        consentWidth,
         PDF_CONFIG.fontSize.small
     );
     
@@ -221,7 +282,11 @@ function generatePDF(formData) {
     // Add signature section
     yPosition = checkAndAddNewPage(doc, yPosition, 40);
     doc.setFontSize(PDF_CONFIG.fontSize.normal);
-    doc.text('Podpis pacjenta:', PDF_CONFIG.pageMargins.left, yPosition);
+    doc.text(
+        encodePolishChars('Podpis pacjenta:'),
+        PDF_CONFIG.pageMargins.left,
+        yPosition
+    );
     
     // Add signature image
     if (formData.signature) {
