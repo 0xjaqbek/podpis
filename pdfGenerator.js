@@ -242,7 +242,7 @@ function generatePDF(formData) {
     const startY = yPosition;
     
     // Add consent section (left column)
-    yPosition = checkAndAddNewPage(doc, yPosition, 40);
+    yPosition = checkAndAddNewPage(doc, yPosition, 20);
     doc.setFontSize(PDF_CONFIG.fontSize.subtitle);
     doc.text(
         encodePolishChars('Zgoda na świadczenia medyczne'),
