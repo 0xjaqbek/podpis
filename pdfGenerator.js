@@ -249,7 +249,7 @@ function generatePDF(formData) {
         PDF_CONFIG.pageMargins.left,
         yPosition
     );
-    yPosition += 7;
+    yPosition += 5;
     
     // Add consent text in left column with wider width
     const consentY = addTextWithLineBreak(
@@ -257,7 +257,7 @@ function generatePDF(formData) {
         CONSENT_TEXT,
         PDF_CONFIG.pageMargins.left,
         yPosition,
-        columnWidth - 2, // Slight reduction to prevent text overlap
+        columnWidth, // Slight reduction to prevent text overlap
         PDF_CONFIG.fontSize.small
     );
     
@@ -275,7 +275,7 @@ function generatePDF(formData) {
         RODO_TEXT,
         rightColumnX,
         startY + 7,
-        columnWidth - 2,
+        columnWidth,
         PDF_CONFIG.fontSize.small
     );
     
