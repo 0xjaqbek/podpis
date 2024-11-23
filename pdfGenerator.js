@@ -235,7 +235,7 @@ function generatePDF(formData) {
     yPosition += 10;
     
     // Add consent section with smaller text and proper margins
-    yPosition = checkAndAddNewPage(doc, yPosition, 40);
+    yPosition = checkAndAddNewPage(doc, yPosition, 10);
     doc.setFontSize(PDF_CONFIG.fontSize.subtitle);
     doc.text(
         encodePolishChars('Zgoda na świadczenia medyczne'),
@@ -258,7 +258,7 @@ function generatePDF(formData) {
     yPosition += 10;
     
     // Add RODO section with smaller text and proper margins
-    yPosition = checkAndAddNewPage(doc, yPosition, 40);
+    yPosition = checkAndAddNewPage(doc, yPosition, 10);
     doc.setFontSize(PDF_CONFIG.fontSize.subtitle);
     doc.text(
         encodePolishChars('Informacja RODO'),
@@ -271,7 +271,7 @@ function generatePDF(formData) {
     yPosition = addTextWithLineBreak(
         doc,
         RODO_TEXT,
-        PDF_CONFIG.pageMargins.left + 10, // Add left indentation
+        PDF_CONFIG.pageMargins.left + 2, // Add left indentation
         yPosition,
         consentWidth,
         PDF_CONFIG.fontSize.small
