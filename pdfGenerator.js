@@ -9,12 +9,12 @@ const PDF_CONFIG = {
         top: 20,
         bottom: 20
     },
-    lineHeight: 6,
+    lineHeight: 5,
     fontSize: {
-        title: 16,
+        title: 14,
         subtitle: 12,
-        normal: 10,
-        small: 9
+        normal: 9,
+        small: 7
     },
     maxWidth: 170,
     logoSize: {
