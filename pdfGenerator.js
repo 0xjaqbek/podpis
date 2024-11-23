@@ -235,7 +235,7 @@ function generatePDF(formData) {
     yPosition += 10;
 
     // Calculate column widths and positions
-    const columnWidth = (PDF_CONFIG.maxWidth - PDF_CONFIG.pageMargins.right - 10) / 2; // -5 for gap between columns
+    const columnWidth = (PDF_CONFIG.maxWidth - 5) / 2;
     const rightColumnX = PDF_CONFIG.pageMargins.left + columnWidth + 5; // Start of right column
     
     // Store initial Y position for both columns
@@ -251,13 +251,13 @@ function generatePDF(formData) {
     );
     yPosition += 7;
     
-    // Add consent text in left column
+    // Add consent text in left column with wider width
     const consentY = addTextWithLineBreak(
         doc,
         CONSENT_TEXT,
         PDF_CONFIG.pageMargins.left,
         yPosition,
-        columnWidth,
+        columnWidth - 2, // Slight reduction to prevent text overlap
         PDF_CONFIG.fontSize.small
     );
     
@@ -275,7 +275,7 @@ function generatePDF(formData) {
         RODO_TEXT,
         rightColumnX,
         startY + 7,
-        columnWidth,
+        columnWidth - 2,
         PDF_CONFIG.fontSize.small
     );
     
