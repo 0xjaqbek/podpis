@@ -318,8 +318,8 @@ function generatePDF(formData) {
         doc.setFontSize(PDF_CONFIG.fontSize.small);
         doc.text(
             `Strona ${i} z ${pageCount}`,
-            doc.internal.pageSize.getWidth() - 40,
-            doc.internal.pageSize.getHeight() - 10
+            doc.internal.pageSize.getWidth() - 30,
+            doc.internal.pageSize.getHeight() - 7
         );
     }
     
