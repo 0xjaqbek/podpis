@@ -4,10 +4,10 @@ const { jsPDF } = window.jspdf;
 // PDF generation configuration and utilities
 const PDF_CONFIG = {
     pageMargins: {
-        left: 20,
-        right: 20,
-        top: 20,
-        bottom: 20
+        left: 14,
+        right: 14,
+        top: 14,
+        bottom: 14
     },
     lineHeight: 5,
     fontSize: {
@@ -16,7 +16,7 @@ const PDF_CONFIG = {
         normal: 9,
         small: 7
     },
-    maxWidth: 170,
+    maxWidth: 200,
     logoSize: {
         width: 30,
         height: 30
