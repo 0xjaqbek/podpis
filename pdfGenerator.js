@@ -61,7 +61,7 @@ function addTextWithLineBreak(doc, text, x, y, maxWidth, fontSize = PDF_CONFIG.f
     doc.setFontSize(fontSize);
     
     // Calculate effective width considering right margin
-    const effectiveWidth = maxWidth - (PDF_CONFIG.pageMargins.right * 2);
+    const effectiveWidth = maxWidth - 2; // Small buffer for text
     
     // Split text into lines with proper width
     const words = text.split(' ');
@@ -233,9 +233,16 @@ function generatePDF(formData) {
     );
     
     yPosition += 10;
+
+    // Calculate column widths and positions
+    const columnWidth = (PDF_CONFIG.maxWidth - PDF_CONFIG.pageMargins.right - 5) / 2; // -5 for gap between columns
+    const rightColumnX = PDF_CONFIG.pageMargins.left + columnWidth + 5; // Start of right column
     
-    // Add consent section with smaller text and proper margins
-    yPosition = checkAndAddNewPage(doc, yPosition, 10);
+    // Store initial Y position for both columns
+    const startY = yPosition;
+    
+    // Add consent section (left column)
+    yPosition = checkAndAddNewPage(doc, yPosition, 40);
     doc.setFontSize(PDF_CONFIG.fontSize.subtitle);
     doc.text(
         encodePolishChars('Zgoda na świadczenia medyczne'),
@@ -244,40 +251,36 @@ function generatePDF(formData) {
     );
     yPosition += 7;
     
-    // Use reduced width for consent text
-    const consentWidth = PDF_CONFIG.maxWidth - 10; // Increased margin reduction
-    yPosition = addTextWithLineBreak(
+    // Add consent text in left column
+    const consentY = addTextWithLineBreak(
         doc,
         CONSENT_TEXT,
-        PDF_CONFIG.pageMargins.left + 2, // Add left indentation
+        PDF_CONFIG.pageMargins.left,
         yPosition,
-        consentWidth,
+        columnWidth,
         PDF_CONFIG.fontSize.small
     );
     
-    yPosition += 10;
-    
-    // Add RODO section with smaller text and proper margins
-    yPosition = checkAndAddNewPage(doc, yPosition, 10);
+    // Add RODO section (right column)
     doc.setFontSize(PDF_CONFIG.fontSize.subtitle);
     doc.text(
         encodePolishChars('Informacja RODO'),
-        PDF_CONFIG.pageMargins.left,
-        yPosition
+        rightColumnX,
+        startY
     );
-    yPosition += 7;
     
-    // Use same reduced width for RODO text
-    yPosition = addTextWithLineBreak(
+    // Add RODO text in right column
+    const rodoY = addTextWithLineBreak(
         doc,
         RODO_TEXT,
-        PDF_CONFIG.pageMargins.left + 2, // Add left indentation
-        yPosition,
-        consentWidth,
+        rightColumnX,
+        startY + 7,
+        columnWidth,
         PDF_CONFIG.fontSize.small
     );
     
-    yPosition += 10;
+    // Set yPosition to the bottom of the longest column
+    yPosition = Math.max(consentY, rodoY) + 10;
     
     // Add signature section
     yPosition = checkAndAddNewPage(doc, yPosition, 40);
