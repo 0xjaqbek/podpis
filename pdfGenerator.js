@@ -245,11 +245,11 @@ function generatePDF(formData) {
     yPosition += 7;
     
     // Use reduced width for consent text
-    const consentWidth = PDF_CONFIG.maxWidth - 40; // Increased margin reduction
+    const consentWidth = PDF_CONFIG.maxWidth - 10; // Increased margin reduction
     yPosition = addTextWithLineBreak(
         doc,
         CONSENT_TEXT,
-        PDF_CONFIG.pageMargins.left + 10, // Add left indentation
+        PDF_CONFIG.pageMargins.left + 2, // Add left indentation
         yPosition,
         consentWidth,
         PDF_CONFIG.fontSize.small
