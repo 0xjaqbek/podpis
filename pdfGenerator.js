@@ -310,19 +310,7 @@ function generatePDF(formData) {
         PDF_CONFIG.pageMargins.left,
         yPosition + 30
     );
-    
-    // Add page numbers
-    const pageCount = doc.internal.getNumberOfPages();
-    for (let i = 1; i <= pageCount; i++) {
-        doc.setPage(i);
-        doc.setFontSize(PDF_CONFIG.fontSize.small);
-        doc.text(
-            `Strona ${i} z ${pageCount}`,
-            doc.internal.pageSize.getWidth() - 50,
-            doc.internal.pageSize.getHeight() - 12
-        );
-    }
-    
+      
     // Download the PDF with Polish characters in filename
     const fileName = `zgoda_medyczna_${formData.name.replace(/\s+/g, '_')}_${
         new Date().toISOString().split('T')[0]
